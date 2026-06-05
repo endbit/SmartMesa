@@ -10,6 +10,7 @@ import {
     QrCode,
     Printer,
     Eye,
+    CheckCircle
 } from "lucide-react";
 
 import { QRCodeCanvas } from "qrcode.react";
@@ -80,6 +81,32 @@ export default function Mesas() {
             console.error("Erro ao criar mesa:", err);
         } finally {
             setSaving(false);
+        }
+    };
+
+    const updateTableState = (updatedTable) => {
+        setTables((prev) =>
+            prev.map((table) =>
+                table.id === updatedTable.id ? updatedTable : table
+            )
+        );
+    };
+
+    const occupyTable = async (tableId) => {
+        try {
+            const res = await api.patch(`/tables/${tableId}/occupy`);
+            updateTableState(res.data);
+        } catch (err) {
+            console.error("Erro ao ocupar mesa:", err);
+        }
+    };
+
+    const freeTable = async (tableId) => {
+        try {
+            const res = await api.patch(`/tables/${tableId}/close`);
+            updateTableState(res.data);
+        } catch (err) {
+            console.error("Erro ao liberar mesa:", err);
         }
     };
 
@@ -240,7 +267,7 @@ export default function Mesas() {
                         <p className="text-zinc-400">Carregando...</p>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full min-w-[650px]">
+                            <table className="w-full min-w-162.5">
 
                                 <thead>
                                     <tr className="border-b border-white/10">
@@ -260,12 +287,27 @@ export default function Mesas() {
                                             </td>
 
                                             <td className="py-4">
-                                                <span className={`px-3 py-1 rounded-xl text-sm ${table.active
-                                                    ? "bg-green-500/10 text-green-400"
-                                                    : "bg-red-500/10 text-red-400"
-                                                    }`}>
-                                                    {table.active ? "Ativa" : "Inativa"}
-                                                </span>
+                                                <div className="flex flex-col gap-2">
+
+                                                    {/*                                                     <span
+                                                        className={`px-3 py-1 rounded-xl text-sm w-fit ${table.active
+                                                            ? "bg-green-500/10 text-green-400"
+                                                            : "bg-red-500/10 text-red-400"
+                                                            }`}
+                                                    >
+                                                        {table.active ? "Ativa" : "Inativa"}
+                                                    </span> */}
+
+                                                    <span
+                                                        className={`px-3 py-1 rounded-xl text-sm w-fit ${table.occupied
+                                                            ? "bg-red-500/10 text-red-400"
+                                                            : "bg-emerald-500/10 text-emerald-400"
+                                                            }`}
+                                                    >
+                                                        {table.occupied ? "Ocupada" : "Livre"}
+                                                    </span>
+
+                                                </div>
                                             </td>
 
                                             <td className="py-4">
@@ -276,6 +318,23 @@ export default function Mesas() {
 
                                             <td className="py-4">
                                                 <div className="flex items-center justify-center lg:justify-end gap-2 flex-wrap">
+                                                    {table.occupied ? (
+                                                        <button
+                                                            onClick={() => freeTable(table.id)}
+                                                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 hover:scale-105 transition"
+                                                            title="Liberar Mesa"
+                                                        >
+                                                            <CheckCircle size={18} />
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => occupyTable(table.id)}
+                                                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-yellow-500/10 text-yellow-400 hover:scale-105 transition"
+                                                            title="Ocupar Mesa"
+                                                        >
+                                                            🍽️
+                                                        </button>
+                                                    )}
 
                                                     <button
                                                         onClick={() => setSelectedTable(table)}

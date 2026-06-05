@@ -29,43 +29,89 @@ public class TableController {
         return ResponseEntity.ok(tableService.findById(id));
     }
 
+    /* BUSCAR POR TOKEN */
     @GetMapping("/token/{token}")
-    public ResponseEntity<TableEntity> findByToken(@PathVariable String token) {
-        return ResponseEntity.ok(tableService.findByToken(token));
+    public ResponseEntity<TableEntity> findByToken(
+            @PathVariable String token) {
+
+        return ResponseEntity.ok(
+                tableService.findByToken(token));
     }
 
     /* CRIAR MESA */
     @PostMapping
-    public ResponseEntity<TableEntity> create(@RequestBody TableEntity table) {
-        TableEntity saved = tableService.create(table);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<TableEntity> create(
+            @RequestBody TableEntity table) {
+
+        return ResponseEntity.ok(
+                tableService.create(table));
     }
 
-    /* ATUALIZAR MESA */
+    /* ATUALIZAR */
     @PutMapping("/{id}")
     public ResponseEntity<TableEntity> update(
             @PathVariable Long id,
             @RequestBody TableEntity table) {
 
-        return ResponseEntity.ok(tableService.update(id, table));
+        return ResponseEntity.ok(
+                tableService.update(id, table));
     }
 
     /* ATIVAR / DESATIVAR */
     @PatchMapping("/{id}/toggle")
-    public ResponseEntity<TableEntity> toggle(@PathVariable Long id) {
-        return ResponseEntity.ok(tableService.toggleActive(id));
+    public ResponseEntity<TableEntity> toggle(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                tableService.toggleActive(id));
     }
 
-    /* REGERAR QR TOKEN */
+    /* OCUPAR MESA */
+    @PatchMapping("/{id}/occupy")
+    public ResponseEntity<TableEntity> occupy(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                tableService.occupyTable(id));
+    }
+
+    /* LIBERAR MESA */
+    @PatchMapping("/{id}/free")
+    public ResponseEntity<TableEntity> free(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                tableService.freeTable(id));
+    }
+
+    /* FECHAR MESA */
+    @PatchMapping("/{id}/close")
+    public ResponseEntity<TableEntity> close(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                tableService.closeTable(id));
+    }
+
+    /* REGERAR TOKEN */
     @PatchMapping("/{id}/regenerate-token")
-    public ResponseEntity<TableEntity> regenerateToken(@PathVariable Long id) {
-        return ResponseEntity.ok(tableService.regenerateToken(id));
+    public ResponseEntity<TableEntity> regenerateToken(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                tableService.regenerateToken(id));
     }
 
-    /* DELETE MESA */
+    /* DELETE */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(
+            @PathVariable Long id) {
+
         tableService.delete(id);
-        return ResponseEntity.ok(Map.of("message", "Mesa removida com sucesso"));
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message",
+                        "Mesa removida com sucesso"));
     }
 }

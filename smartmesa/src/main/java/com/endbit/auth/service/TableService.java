@@ -1,5 +1,6 @@
 package com.endbit.auth.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ public class TableService {
                 .orElseThrow(() -> new RuntimeException("Mesa não encontrada"));
     }
 
+    /* BUSCAR POR TOKEN */
     public TableEntity findByToken(String token) {
         return tableRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Mesa inválida"));
@@ -34,15 +36,15 @@ public class TableService {
     /* CRIAR MESA */
     public TableEntity create(TableEntity table) {
 
-        // evita duplicidade de número
         tableRepository.findByNumber(table.getNumber())
                 .ifPresent(t -> {
                     throw new RuntimeException("Já existe uma mesa com esse número");
                 });
 
         table.setActive(true);
+        table.setOccupied(false);
+        table.setOccupiedAt(null);
 
-        // gera token único para QR Code
         table.setToken(generateToken());
 
         return tableRepository.save(table);
@@ -61,6 +63,7 @@ public class TableService {
 
     /* ATIVAR / DESATIVAR */
     public TableEntity toggleActive(Long id) {
+
         TableEntity table = findById(id);
 
         table.setActive(!table.getActive());
@@ -68,8 +71,38 @@ public class TableService {
         return tableRepository.save(table);
     }
 
-    /* REGERAR QR CODE TOKEN */
+    /* OCUPAR MESA */
+    public TableEntity occupyTable(Long id) {
+
+        TableEntity table = findById(id);
+
+        if (!table.getOccupied()) {
+            table.setOccupied(true);
+            table.setOccupiedAt(LocalDateTime.now());
+        }
+
+        return tableRepository.save(table);
+    }
+
+    /* LIBERAR MESA */
+    public TableEntity freeTable(Long id) {
+
+        TableEntity table = findById(id);
+
+        table.setOccupied(false);
+        table.setOccupiedAt(null);
+
+        return tableRepository.save(table);
+    }
+
+    /* FECHAR MESA */
+    public TableEntity closeTable(Long id) {
+        return freeTable(id);
+    }
+
+    /* REGERAR TOKEN */
     public TableEntity regenerateToken(Long id) {
+
         TableEntity table = findById(id);
 
         table.setToken(generateToken());
@@ -79,11 +112,18 @@ public class TableService {
 
     /* DELETE */
     public void delete(Long id) {
+
         TableEntity table = findById(id);
+
+        if (Boolean.TRUE.equals(table.getOccupied())) {
+            throw new RuntimeException(
+                    "Não é possível excluir uma mesa ocupada");
+        }
+
         tableRepository.delete(table);
     }
 
-    /* GERADOR DE TOKEN */
+    /* GERADOR TOKEN */
     private String generateToken() {
         return UUID.randomUUID().toString();
     }

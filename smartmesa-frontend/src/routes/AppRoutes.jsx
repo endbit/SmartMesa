@@ -24,7 +24,7 @@ import Sucesso from "../pages/Client/Sucesso/Sucesso";
 import AcompanharPedido from "../pages/Client/AcompanharPedido/AcompanharPedido";
 
 export default function AppRoutes() {
-    const isLogged = !!localStorage.getItem("admin_token");
+    const isLogged = !!localStorage.getItem("token");
 
     return (
         <Router>

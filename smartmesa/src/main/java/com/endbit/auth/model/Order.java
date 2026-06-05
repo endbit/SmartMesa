@@ -2,8 +2,12 @@ package com.endbit.auth.model;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.endbit.auth.enums.OrderStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,11 +31,28 @@ public class Order {
 
     private String customerName;
 
+    /**
+     * Número da mesa vinculada ao pedido
+     */
     private Integer tableNumber;
+
+    /**
+     * Status do pedido
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderStatus status = OrderStatus.OPEN;
 
     @PrePersist
     public void generateOrderNumber() {
-        this.orderNumber = generateNextOrderNumber();
+
+        if (this.orderNumber == null) {
+            this.orderNumber = generateNextOrderNumber();
+        }
+
+        if (this.status == null) {
+            this.status = OrderStatus.OPEN;
+        }
     }
 
     private Integer generateNextOrderNumber() {
