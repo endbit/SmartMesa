@@ -233,7 +233,7 @@ export default function Mesas() {
                         <button
                             onClick={handleCreateTable}
                             disabled={saving}
-                            className="w-full bg-orange-500 hover:bg-orange-400 py-3 rounded-2xl text-white font-semibold disabled:opacity-50"
+                            className="w-full bg-orange-500 hover:bg-orange-400 py-3 hover:translate-y-[-1px] transition cursor-pointer rounded-2xl text-white font-semibold disabled:opacity-50"
                         >
                             {saving ? "Salvando..." : "Salvar Mesa"}
                         </button>
@@ -321,7 +321,7 @@ export default function Mesas() {
                                                     {table.occupied ? (
                                                         <button
                                                             onClick={() => freeTable(table.id)}
-                                                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 hover:scale-105 transition"
+                                                            className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-emerald-500/10 text-emerald-400 hover:scale-110 transition"
                                                             title="Liberar Mesa"
                                                         >
                                                             <CheckCircle size={18} />
@@ -329,7 +329,7 @@ export default function Mesas() {
                                                     ) : (
                                                         <button
                                                             onClick={() => occupyTable(table.id)}
-                                                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-yellow-500/10 text-yellow-400 hover:scale-105 transition"
+                                                            className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-yellow-500/10 text-yellow-400 hover:scale-110 transition"
                                                             title="Ocupar Mesa"
                                                         >
                                                             🍽️
@@ -338,27 +338,27 @@ export default function Mesas() {
 
                                                     <button
                                                         onClick={() => setSelectedTable(table)}
-                                                        className="w-11 h-11 flex items-center justify-center rounded-xl bg-green-500/10 text-green-400"
+                                                        className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-green-500/10 text-green-400 hover:scale-110 transition"
                                                     >
                                                         <QrCode size={18} />
                                                     </button>
 
                                                     <button
                                                         onClick={() => printQRCode(table)}
-                                                        className="w-11 h-11 flex items-center justify-center rounded-xl bg-orange-500/10 text-orange-400"
+                                                        className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-orange-500/10 text-orange-400 hover:scale-110 transition"
                                                     >
                                                         <Printer size={18} />
                                                     </button>
 
-                                                    <button className="w-11 h-11 flex items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400">
+                                                    <button className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-cyan-500/10 text-cyan-400 hover:scale-110 transition">
                                                         <Eye size={18} />
                                                     </button>
 
-                                                    <button className="w-11 h-11 flex items-center justify-center rounded-xl bg-white/5 text-zinc-300">
+                                                    <button className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-white/5 text-zinc-300 hover:scale-110 transition">
                                                         <Pencil size={18} />
                                                     </button>
 
-                                                    <button className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-500/10 text-red-400">
+                                                    <button className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-red-500/10 text-red-400 hover:scale-110 transition">
                                                         <Trash2 size={18} />
                                                     </button>
 
