@@ -175,6 +175,7 @@ export default function Categorias() {
                                                 <button className="w-10 h-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition">
                                                     <Trash2 size={18} />
                                                 </button>
+                                                
                                             </div>
                                         </td>
                                     </tr>

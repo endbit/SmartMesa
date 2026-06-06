@@ -24,19 +24,9 @@ export default function Products() {
                     </p>
                 </div>
 
-                <button className="bg-orange-500 hover:bg-orange-400 transition px-6 py-3 rounded-2xl text-white font-semibold flex items-center gap-2">
-                    <Plus size={18} />
-                    Novo Produto
-                </button>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-3">
-                <p
-                    className={`px-5 py-3 rounded-2xl font-medium transition bg-orange-500 text-white`}>
-                    Produtos
-                </p>
-            </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Formulários */}

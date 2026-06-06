@@ -350,14 +350,6 @@ export default function Mesas() {
                                                         <Printer size={18} />
                                                     </button>
 
-                                                    <button className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-cyan-500/10 text-cyan-400 hover:scale-110 transition">
-                                                        <Eye size={18} />
-                                                    </button>
-
-                                                    <button className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-white/5 text-zinc-300 hover:scale-110 transition">
-                                                        <Pencil size={18} />
-                                                    </button>
-
                                                     <button className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-red-500/10 text-red-400 hover:scale-110 transition">
                                                         <Trash2 size={18} />
                                                     </button>

@@ -17,6 +17,7 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String nome;
 
-    private Boolean ativo = true;
+    @Column(nullable = false)
+    private String descricao;
     
 }
