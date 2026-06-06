@@ -2,12 +2,16 @@ package com.endbit.auth.model;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "tb_products")
 public class Product {
@@ -27,7 +31,8 @@ public class Product {
 
     private Long estoque;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonIgnoreProperties("products")
     private Category category;
 }

@@ -1,11 +1,16 @@
 package com.endbit.auth.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "tb_categories")
 public class Category {
@@ -14,10 +19,10 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String nome;
 
-    @Column(nullable = false)
     private String descricao;
-    
+
+    @OneToMany(mappedBy = "category")
+    private List<Product> products = new ArrayList<>();
 }
