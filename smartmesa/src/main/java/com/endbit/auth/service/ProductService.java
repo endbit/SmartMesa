@@ -50,7 +50,6 @@ public class ProductService {
         productAtual.setNome(productInserido.getNome());
         productAtual.setDescricao(productInserido.getDescricao());
         productAtual.setPreco(productInserido.getPreco());
-        productAtual.setEstoque(productInserido.getEstoque());
 
         if (productInserido.getCategory() != null) {
 

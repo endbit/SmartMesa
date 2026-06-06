@@ -29,8 +29,6 @@ public class Product {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal preco;
 
-    private Long estoque;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnoreProperties("products")

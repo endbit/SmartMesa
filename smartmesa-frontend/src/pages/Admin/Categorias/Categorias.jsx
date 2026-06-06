@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Tags,
     Plus,
@@ -6,9 +6,66 @@ import {
     Pencil,
     Trash2,
 } from "lucide-react";
+import { getCategories, createCategory, deleteCategory } from "./services";
 
 export default function Categorias() {
     const [search, setSearch] = useState("");
+    const [categories, setCategories] = useState([]);
+    const [nome, setNome] = useState("");
+    const [descricao, setDescricao] = useState("");
+
+    useEffect(() => {
+        async function loadCategories() {
+            try {
+                const data = await getCategories();
+                setCategories(data);
+            } catch (error) {
+                console.error(
+                    "Erro ao carregar categorias:",
+                    error
+                );
+            }
+        }
+
+        loadCategories();
+    }, []);
+
+    async function handleSave() {
+        try {
+            await createCategory({
+                nome,
+                descricao,
+            });
+            const data = await getCategories();
+            setCategories(data);
+
+            setNome("");
+            setDescricao("");
+
+            alert("Categoria cadastrada com sucesso!");
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao cadastrar categoria");
+        }
+    }
+
+    async function handleDelete(categoryId) {
+        if (
+            window.confirm(
+                "Tem certeza que deseja excluir esta categoria?"
+            )
+        ) {
+            try {
+                await deleteCategory(categoryId);
+                const data = await getCategories();
+                setCategories(data);
+                alert("Categoria excluída com sucesso!");
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao excluir categoria");
+            }
+        }
+    }
 
     return (
         <div className="space-y-8">
@@ -49,6 +106,8 @@ export default function Categorias() {
 
                             <input
                                 type="text"
+                                value={nome}
+                                onChange={(e) => setNome(e.target.value)}
                                 placeholder="Ex: Salgados"
                                 className="w-full mt-2 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white outline-none focus:border-orange-500"
                             />
@@ -58,15 +117,19 @@ export default function Categorias() {
                             <label className="text-zinc-400 text-sm">
                                 Descrição
                             </label>
-
                             <textarea
                                 rows="4"
+                                value={descricao}
+                                onChange={(e) => setDescricao(e.target.value)}
                                 placeholder="Descrição da categoria..."
                                 className="w-full mt-2 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white outline-none focus:border-orange-500 resize-none"
                             />
                         </div>
 
-                        <button className="w-full bg-orange-500 hover:bg-orange-400 transition py-3 rounded-2xl text-white font-semibold">
+                        <button
+                            onClick={handleSave}
+                            className="w-full bg-orange-500 hover:bg-orange-400 transition py-3 rounded-2xl text-white font-semibold"
+                        >
                             Salvar Categoria
                         </button>
                     </div>
@@ -126,60 +189,53 @@ export default function Categorias() {
                             </thead>
 
                             <tbody>
-                                {[
-                                    {
-                                        nome: "Salgados",
-                                        descricao:
-                                            "Coxinhas, pastéis e similares",
-                                        produtos: 12,
-                                    },
-                                    {
-                                        nome: "Bebidas",
-                                        descricao:
-                                            "Cafés, sucos e refrigerantes",
-                                        produtos: 8,
-                                    },
-                                    {
-                                        nome: "Doces",
-                                        descricao:
-                                            "Sobremesas e doces",
-                                        produtos: 5,
-                                    },
-                                ].map((category, index) => (
-                                    <tr
-                                        key={index}
-                                        className="border-b border-white/5"
-                                    >
-                                        <td className="py-4">
-                                            <span className="px-3 py-1 rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
-                                                {category.nome}
-                                            </span>
-                                        </td>
+                                {categories
+                                    .filter((category) =>
+                                        category.nome
+                                            ?.toLowerCase()
+                                            .includes(
+                                                search.toLowerCase()
+                                            )
+                                    )
+                                    .map((category) => (
+                                        <tr
+                                            key={category.id}
+                                            className="border-b border-white/5"
+                                        >
+                                            <td className="py-4">
+                                                <span className="px-3 py-1 rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                                                    {category.nome}
+                                                </span>
+                                            </td>
 
-                                        <td className="py-4 text-zinc-400">
-                                            {category.descricao}
-                                        </td>
+                                            <td className="py-4 text-zinc-400">
+                                                {category.descricao}
+                                            </td>
 
-                                        <td className="py-4">
-                                            <span className="px-3 py-1 rounded-xl bg-cyan-500/10 text-cyan-400 text-sm">
-                                                {category.produtos}
-                                            </span>
-                                        </td>
+                                            <td className="py-4">
+                                                <span className="px-3 py-1 rounded-xl bg-cyan-500/10 text-cyan-400 text-sm">
+                                                    {category.products
+                                                        ?.length || 0}
+                                                </span>
+                                            </td>
 
-                                        <td className="py-4">
-                                            <div className="flex justify-end gap-2">
-                                                <button className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-zinc-300 transition">
-                                                    <Pencil size={18} />
-                                                </button>
+                                            <td className="py-4">
+                                                <div className="flex justify-end gap-2">
+                                                    <button className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-zinc-300 transition">
+                                                        <Pencil
+                                                            size={18}
+                                                        />
+                                                    </button>
 
-                                                <button className="w-10 h-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition">
-                                                    <Trash2 size={18} />
-                                                </button>
-                                                
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                                    <button onClick={() => handleDelete(category.id)} className="w-10 h-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition">
+                                                        <Trash2
+                                                            size={18}
+                                                        />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                     </div>
@@ -192,7 +248,7 @@ export default function Categorias() {
                             </span>
 
                             <span className="text-white font-semibold">
-                                3
+                                {categories.length}
                             </span>
                         </div>
                     </div>

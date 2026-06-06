@@ -40,7 +40,6 @@ public class ProductController {
         System.out.println("Nome = " + product.getNome());
         System.out.println("Descricao = " + product.getDescricao());
         System.out.println("Preco = " + product.getPreco());
-        System.out.println("Estoque = " + product.getEstoque());
 
         if (product.getCategory() != null) {
             System.out.println("Categoria ID = " + product.getCategory().getId());

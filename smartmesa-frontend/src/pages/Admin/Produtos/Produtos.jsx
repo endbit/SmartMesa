@@ -79,18 +79,6 @@ export default function Products() {
 
                             <div>
                                 <label className="text-zinc-400 text-sm">
-                                    Estoque
-                                </label>
-
-                                <input
-                                    type="number"
-                                    placeholder="100"
-                                    className="w-full mt-2 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white outline-none focus:border-orange-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-zinc-400 text-sm">
                                     Descrição
                                 </label>
 
