@@ -27,51 +27,55 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
+    public Product save(Product product) {
+        return productRepository.save(product);
+    }
+
     public Product insertNew(Product product) {
-
         Long categoryId = product.getCategory().getId();
-
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
-
         product.setCategory(category);
-
         return productRepository.save(product);
     }
 
     public Product update(Long id, Product productInserido) {
-
         Product productAtual = findById(id);
-
         if (productAtual == null) {
             return null;
         }
-
         productAtual.setNome(productInserido.getNome());
         productAtual.setDescricao(productInserido.getDescricao());
         productAtual.setPreco(productInserido.getPreco());
-
+        // Atualiza imagem apenas se enviada
+        if (productInserido.getImageUrl() != null) {
+            productAtual.setImageUrl(productInserido.getImageUrl());
+        }
         if (productInserido.getCategory() != null) {
-
             Category category = categoryRepository
                     .findById(productInserido.getCategory().getId())
                     .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
-
             productAtual.setCategory(category);
         }
-
         return productRepository.save(productAtual);
     }
 
     public boolean deleteById(Long id) {
-
         Product product = findById(id);
-
         if (product == null) {
             return false;
         }
-
         productRepository.delete(product);
         return true;
+    }
+
+    public Product updateImage(Long productId, String imageUrl) {
+        Product product = findById(productId);
+        if (product == null) {
+            return null;
+        }
+
+        product.setImageUrl(imageUrl);
+        return productRepository.save(product);
     }
 }
