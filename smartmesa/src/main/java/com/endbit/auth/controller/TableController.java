@@ -66,33 +66,6 @@ public class TableController {
                 tableService.toggleActive(id));
     }
 
-    /* OCUPAR MESA */
-    @PatchMapping("/{id}/occupy")
-    public ResponseEntity<TableEntity> occupy(
-            @PathVariable Long id) {
-
-        return ResponseEntity.ok(
-                tableService.occupyTable(id));
-    }
-
-    /* LIBERAR MESA */
-    @PatchMapping("/{id}/free")
-    public ResponseEntity<TableEntity> free(
-            @PathVariable Long id) {
-
-        return ResponseEntity.ok(
-                tableService.freeTable(id));
-    }
-
-    /* FECHAR MESA */
-    @PatchMapping("/{id}/close")
-    public ResponseEntity<TableEntity> close(
-            @PathVariable Long id) {
-
-        return ResponseEntity.ok(
-                tableService.closeTable(id));
-    }
-
     /* REGERAR TOKEN */
     @PatchMapping("/{id}/regenerate-token")
     public ResponseEntity<TableEntity> regenerateToken(
@@ -110,8 +83,6 @@ public class TableController {
         tableService.delete(id);
 
         return ResponseEntity.ok(
-                Map.of(
-                        "message",
-                        "Mesa removida com sucesso"));
+                Map.of("message", "Mesa removida com sucesso"));
     }
 }

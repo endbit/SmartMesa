@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.endbit.auth.config.FileStorageController;
 import com.endbit.auth.model.Category;
 import com.endbit.auth.model.Product;
 import com.endbit.auth.service.ProductService;
@@ -23,9 +22,6 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
-
-    @Autowired
-    private FileStorageController fileStorageController;
 
     // 🔥 LISTAR TODOS
     @GetMapping

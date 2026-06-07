@@ -1,6 +1,5 @@
 package com.endbit.auth.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,9 +41,6 @@ public class TableService {
                 });
 
         table.setActive(true);
-        table.setOccupied(false);
-        table.setOccupiedAt(null);
-
         table.setToken(generateToken());
 
         return tableRepository.save(table);
@@ -65,46 +61,15 @@ public class TableService {
     public TableEntity toggleActive(Long id) {
 
         TableEntity table = findById(id);
-
         table.setActive(!table.getActive());
 
         return tableRepository.save(table);
-    }
-
-    /* OCUPAR MESA */
-    public TableEntity occupyTable(Long id) {
-
-        TableEntity table = findById(id);
-
-        if (!table.getOccupied()) {
-            table.setOccupied(true);
-            table.setOccupiedAt(LocalDateTime.now());
-        }
-
-        return tableRepository.save(table);
-    }
-
-    /* LIBERAR MESA */
-    public TableEntity freeTable(Long id) {
-
-        TableEntity table = findById(id);
-
-        table.setOccupied(false);
-        table.setOccupiedAt(null);
-
-        return tableRepository.save(table);
-    }
-
-    /* FECHAR MESA */
-    public TableEntity closeTable(Long id) {
-        return freeTable(id);
     }
 
     /* REGERAR TOKEN */
     public TableEntity regenerateToken(Long id) {
 
         TableEntity table = findById(id);
-
         table.setToken(generateToken());
 
         return tableRepository.save(table);
@@ -114,11 +79,6 @@ public class TableService {
     public void delete(Long id) {
 
         TableEntity table = findById(id);
-
-        if (Boolean.TRUE.equals(table.getOccupied())) {
-            throw new RuntimeException(
-                    "Não é possível excluir uma mesa ocupada");
-        }
 
         tableRepository.delete(table);
     }

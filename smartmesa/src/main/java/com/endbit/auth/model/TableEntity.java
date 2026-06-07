@@ -1,6 +1,5 @@
 package com.endbit.auth.model;
 
-import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,19 +26,5 @@ public class TableEntity {
     @Column(unique = true)
     private String token;
 
-    /**
-     * Mesa ativa/inativa no sistema
-     */
     private Boolean active = true;
-
-    /**
-     * Indica se existe atendimento em andamento
-     */
-    @Column(nullable = false)
-    private Boolean occupied = false;
-
-    /**
-     * Momento em que a mesa foi ocupada
-     */
-    private LocalDateTime occupiedAt;
 }
