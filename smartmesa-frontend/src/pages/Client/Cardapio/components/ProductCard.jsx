@@ -1,44 +1,45 @@
 import { Plus } from "lucide-react";
 
-export default function ProductCard({
-    product,
-    onAdd
-}) {
+export default function ProductCard({ product, onAdd }) {
     return (
-        <div className="bg-stone-900/70 backdrop-blur-xl rounded-3xl overflow-hidden border border-stone-800 shadow-xl">
+        <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-4">
 
-            <img
-                src={product.imagem}
-                alt={product.nome}
-                className="w-full h-44 object-cover"
-            />
+            {/* LEFT: imagem + info */}
+            <div className="flex items-center gap-4">
 
-            <div className="p-4">
+                {/* 🔥 IMAGEM */}
+                <img
+                    src={
+                        product.imageUrl ||
+                        "https://via.placeholder.com/80"
+                    }
+                    alt={product.nome}
+                    className="w-14 h-14 rounded-xl object-cover border border-white/10"
+                />
 
-                <h3 className="text-amber-100 font-semibold text-lg">
-                    {product.nome}
-                </h3>
+                {/* INFO */}
+                <div>
+                    <h3 className="text-white font-semibold">
+                        {product.nome}
+                    </h3>
 
-                <p className="text-stone-400 text-sm mt-1">
-                    {product.descricao}
-                </p>
+                    <p className="text-zinc-400 text-sm">
+                        {product.category?.nome}
+                    </p>
 
-                <div className="flex items-center justify-between mt-5">
-
-                    <span className="text-amber-400 font-bold text-lg">
-                        R$ {product.preco.toFixed(2)}
+                    <span className="text-orange-400 font-bold">
+                        R$ {product.preco}
                     </span>
-
-                    <button
-                        onClick={() => onAdd(product)}
-                        className="w-12 h-12 rounded-2xl bg-linear-to-r from-amber-500 to-red-500 flex items-center justify-center"
-                    >
-                        <Plus size={20} className="text-black" />
-                    </button>
-
                 </div>
-
             </div>
+
+            {/* RIGHT: botão */}
+            <button
+                onClick={() => onAdd(product)}
+                className="bg-orange-500 hover:bg-orange-400 text-white px-4 py-2 rounded-xl transition"
+            >
+                Adicionar
+            </button>
 
         </div>
     );

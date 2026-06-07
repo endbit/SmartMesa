@@ -1,18 +1,19 @@
 import ProductCard from "./ProductCard";
 
-export default function ProductList({
-    products,
-    onAdd
-}) {
+export default function ProductList({ products, onAdd }) {
     return (
-        <div className="px-4 space-y-5">
+        <div className="px-4 space-y-5 transition-all duration-300">
 
             {products.map(product => (
-                <ProductCard
+                <div
                     key={product.id}
-                    product={product}
-                    onAdd={onAdd}
-                />
+                    className="animate-fade-in"
+                >
+                    <ProductCard
+                        product={product}
+                        onAdd={onAdd}
+                    />
+                </div>
             ))}
 
         </div>

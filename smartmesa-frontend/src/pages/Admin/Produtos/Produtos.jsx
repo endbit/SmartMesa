@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import getProducts from "./services";
+import { createProduct, getProducts } from "./services";
+import { getCategories } from "../Categorias/services";
 
 
 import {
@@ -14,6 +15,12 @@ import {
 export default function Products() {
 
     const [products, setProducts] = useState([]);
+    const [nome, setNome] = useState("");
+    const [descricao, setDescricao] = useState("");
+    const [preco, setPreco] = useState("");
+    const [image, setImage] = useState(null);
+    const [categories, setCategories] = useState([]);
+    const [categoryId, setCategoryId] = useState("");
 
     useEffect(() => {
         async function loadProducts() {
@@ -24,9 +31,46 @@ export default function Products() {
                 console.error("Erro ao carregar produtos:", error);
             }
         }
+        async function loadCategories() {
+            try {
+                const data = await getCategories();
+                setCategories(data);
+            } catch (error) {
+                console.error("Erro ao carregar categorias:", error);
+            }
+        }
 
         loadProducts();
+        loadCategories();
     }, []);
+
+    async function handleSubmit() {
+        try {
+            const formData = new FormData();
+
+            formData.append("nome", nome);
+            formData.append("descricao", descricao);
+            formData.append("preco", preco);
+            formData.append("categoryId", categoryId);
+
+            if (image) {
+                formData.append("image", image);
+            }
+
+            const newProduct = await createProduct(formData);
+
+            setProducts((prev) => [...prev, newProduct]);
+
+            // limpar form
+            setNome("");
+            setDescricao("");
+            setPreco("");
+            setImage(null);
+
+        } catch (error) {
+            console.error("Erro ao salvar produto:", error);
+        }
+    }
 
     return (
         <div className="space-y-8">
@@ -61,33 +105,74 @@ export default function Products() {
                         <div className="space-y-4">
                             <input
                                 type="text"
+                                value={nome}
+                                onChange={(e) => setNome(e.target.value)}
                                 placeholder="Nome"
                                 className="w-full mt-2 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white"
                             />
 
-                            <select className="w-full mt-2 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white">
-                                <option>Salgados</option>
-                                <option>Bebidas</option>
-                            </select>
+                            <div className="relative">
+                                <select
+                                    value={categoryId}
+                                    onChange={(e) => setCategoryId(e.target.value)}
+                                    className="
+            w-full mt-2 appearance-none
+            bg-zinc-900/40
+            border border-white/10
+            rounded-2xl px-4 py-3 pr-10
+            text-white
+            outline-none
+            focus:border-orange-500
+            focus:ring-2 focus:ring-orange-500/20
+        "
+                                >
+                                    <option value="" className="bg-zinc-900">
+                                        Selecione uma categoria
+                                    </option>
+
+                                    {categories.map((cat) => (
+                                        <option
+                                            key={cat.id}
+                                            value={cat.id}
+                                            className="bg-zinc-900 text-white"
+                                        >
+                                            {cat.nome}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {/* seta custom */}
+                                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400">
+                                    ▼
+                                </div>
+                            </div>
 
                             <input
                                 type="number"
+                                value={preco}
+                                onChange={(e) => setPreco(e.target.value)}
                                 placeholder="Preço"
                                 className="w-full mt-2 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white"
                             />
 
                             <textarea
                                 rows="4"
+                                value={descricao}
+                                onChange={(e) => setDescricao(e.target.value)}
                                 placeholder="Descrição"
                                 className="w-full mt-2 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white resize-none"
                             />
 
                             <input
                                 type="file"
+                                onChange={(e) => setImage(e.target.files[0])}
                                 className="w-full mt-2 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-zinc-400"
                             />
 
-                            <button className="w-full bg-orange-500 hover:bg-orange-400 transition py-3 rounded-2xl text-white font-semibold">
+                            <button
+                                onClick={handleSubmit}
+                                className="w-full bg-orange-500 hover:bg-orange-400 transition py-3 rounded-2xl text-white font-semibold"
+                            >
                                 Salvar Produto
                             </button>
                         </div>
