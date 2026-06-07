@@ -22,7 +22,6 @@ export default function Mesas() {
     const [loading, setLoading] = useState(true);
     const [selectedTable, setSelectedTable] = useState(null);
 
-    // 🧠 FORM STATE
     const [form, setForm] = useState({
         number: "",
         description: "",
@@ -56,7 +55,6 @@ export default function Mesas() {
         }));
     };
 
-    // 🚀 SALVAR MESA
     const handleCreateTable = async () => {
         if (!form.number) return;
 
@@ -68,9 +66,7 @@ export default function Mesas() {
                 description: form.description,
             });
 
-            const newTable = res.data;
-
-            setTables((prev) => [newTable, ...prev]);
+            setTables((prev) => [res.data, ...prev]);
 
             setForm({
                 number: "",
@@ -84,37 +80,15 @@ export default function Mesas() {
         }
     };
 
-    const updateTableState = (updatedTable) => {
-        setTables((prev) =>
-            prev.map((table) =>
-                table.id === updatedTable.id ? updatedTable : table
-            )
-        );
-    };
-
-    const occupyTable = async (tableId) => {
-        try {
-            const res = await api.patch(`/tables/${tableId}/occupy`);
-            updateTableState(res.data);
-        } catch (err) {
-            console.error("Erro ao ocupar mesa:", err);
-        }
-    };
-
-    const freeTable = async (tableId) => {
-        try {
-            const res = await api.patch(`/tables/${tableId}/close`);
-            updateTableState(res.data);
-        } catch (err) {
-            console.error("Erro ao liberar mesa:", err);
-        }
-    };
+    // ✅ SESSÃO PADRONIZADA (IMPORTANTE)
+    const SESSION_URL = (token) =>
+        `${window.location.origin}/menu/${token}`;
 
     const printQRCode = async (table) => {
         if (!table?.token) return;
 
         const doc = new jsPDF();
-        const url = `${window.location.origin}/menu/${table.token}`;
+        const url = SESSION_URL(table.token);
 
         try {
             const qrDataUrl = await QRCode.toDataURL(url);
@@ -233,7 +207,7 @@ export default function Mesas() {
                         <button
                             onClick={handleCreateTable}
                             disabled={saving}
-                            className="w-full bg-orange-500 hover:bg-orange-400 py-3 hover:translate-y-[-1px] transition cursor-pointer rounded-2xl text-white font-semibold disabled:opacity-50"
+                            className="w-full bg-orange-500 hover:bg-orange-400 py-3 transition rounded-2xl text-white font-semibold disabled:opacity-50"
                         >
                             {saving ? "Salvando..." : "Salvar Mesa"}
                         </button>
@@ -287,27 +261,12 @@ export default function Mesas() {
                                             </td>
 
                                             <td className="py-4">
-                                                <div className="flex flex-col gap-2">
-
-                                                    {/*                                                     <span
-                                                        className={`px-3 py-1 rounded-xl text-sm w-fit ${table.active
-                                                            ? "bg-green-500/10 text-green-400"
-                                                            : "bg-red-500/10 text-red-400"
-                                                            }`}
-                                                    >
-                                                        {table.active ? "Ativa" : "Inativa"}
-                                                    </span> */}
-
-                                                    <span
-                                                        className={`px-3 py-1 rounded-xl text-sm w-fit ${table.occupied
-                                                            ? "bg-red-500/10 text-red-400"
-                                                            : "bg-emerald-500/10 text-emerald-400"
-                                                            }`}
-                                                    >
-                                                        {table.occupied ? "Ocupada" : "Livre"}
-                                                    </span>
-
-                                                </div>
+                                                <span className={`px-3 py-1 rounded-xl text-sm w-fit ${table.occupied
+                                                    ? "bg-red-500/10 text-red-400"
+                                                    : "bg-emerald-500/10 text-emerald-400"
+                                                    }`}>
+                                                    {table.occupied ? "Ocupada" : "Livre"}
+                                                </span>
                                             </td>
 
                                             <td className="py-4">
@@ -318,39 +277,22 @@ export default function Mesas() {
 
                                             <td className="py-4">
                                                 <div className="flex items-center justify-center lg:justify-end gap-2 flex-wrap">
-                                                    {table.occupied ? (
-                                                        <button
-                                                            onClick={() => freeTable(table.id)}
-                                                            className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-emerald-500/10 text-emerald-400 hover:scale-110 transition"
-                                                            title="Liberar Mesa"
-                                                        >
-                                                            <CheckCircle size={18} />
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => occupyTable(table.id)}
-                                                            className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-yellow-500/10 text-yellow-400 hover:scale-110 transition"
-                                                            title="Ocupar Mesa"
-                                                        >
-                                                            🍽️
-                                                        </button>
-                                                    )}
 
                                                     <button
                                                         onClick={() => setSelectedTable(table)}
-                                                        className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-green-500/10 text-green-400 hover:scale-110 transition"
+                                                        className="w-11 h-11 flex items-center justify-center rounded-xl bg-green-500/10 text-green-400"
                                                     >
                                                         <QrCode size={18} />
                                                     </button>
 
                                                     <button
                                                         onClick={() => printQRCode(table)}
-                                                        className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-orange-500/10 text-orange-400 hover:scale-110 transition"
+                                                        className="w-11 h-11 flex items-center justify-center rounded-xl bg-orange-500/10 text-orange-400"
                                                     >
                                                         <Printer size={18} />
                                                     </button>
 
-                                                    <button className="w-11 h-11 flex items-center cursor-pointer justify-center rounded-xl bg-red-500/10 text-red-400 hover:scale-110 transition">
+                                                    <button className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-500/10 text-red-400">
                                                         <Trash2 size={18} />
                                                     </button>
 
@@ -380,7 +322,7 @@ export default function Mesas() {
 
                         <div className="bg-white p-3 rounded-xl flex items-center justify-center">
                             <QRCodeCanvas
-                                value={`${window.location.origin}/menu/${selectedTable.token}`}
+                                value={SESSION_URL(selectedTable.token)}
                                 size={200}
                                 bgColor="#ffffff"
                                 fgColor="#000000"

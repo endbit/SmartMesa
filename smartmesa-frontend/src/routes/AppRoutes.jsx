@@ -18,10 +18,10 @@ import AdminRoute from "../security/AdminRoute";
 // CLIENTE
 import BoasVindas from "../pages/Client/BoasVindas/BoasVindas";
 import Cardapio from "../pages/Client/Cardapio/Cardapio";
-import Carrinho from "../pages/Client/Carrinho/Carrinho";
 import Pagamento from "../pages/Client/Pagamento/Pagamento";
 import Sucesso from "../pages/Client/Sucesso/Sucesso";
 import AcompanharPedido from "../pages/Client/AcompanharPedido/AcompanharPedido";
+import Carrinho from "../pages/Client/Carrinho/Carrinho";
 
 export default function AppRoutes() {
     const isLogged = !!localStorage.getItem("token");
@@ -59,12 +59,12 @@ export default function AppRoutes() {
                 </Route>
 
                 {/* 🍽️ CLIENTE */}
-                <Route path="/menu/:token" element={<BoasVindas />} />
-                <Route path="/menu/:token/products" element={<Cardapio />} />
-                <Route path="/menu/:token/carrinho" element={<Carrinho />} />
-                <Route path="/menu/:token/pagamento" element={<Pagamento />} />
-                <Route path="/menu/:token/sucesso" element={<Sucesso />} />
-                <Route path="/menu/:token/acompanharpedido" element={<AcompanharPedido />} />
+                <Route path="/menu/:sessionToken" element={<BoasVindas />} />
+                <Route path="/menu/:sessionToken/cardapio" element={<Cardapio />} />
+                <Route path="/menu/:sessionToken/carrinho" element={<Carrinho />} />
+                <Route path="/menu/:sessionToken/pagamento" element={<Pagamento />} />
+                <Route path="/menu/:sessionToken/sucesso" element={<Sucesso />} />
+                <Route path="/menu/:sessionToken/acompanharpedido" element={<AcompanharPedido />} />
 
             </Routes>
         </Router>
