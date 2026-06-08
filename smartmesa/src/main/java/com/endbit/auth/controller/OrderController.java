@@ -1,6 +1,7 @@
 package com.endbit.auth.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +34,7 @@ public class OrderController {
                 payload.getSessionToken(),
                 payload.getCustomerName(),
                 payload.getItems(),
-                payload.getTotalPrice()
-        );
+                payload.getTotalPrice());
 
         // 🔔 WebSocket realtime
         messagingTemplate.convertAndSend("/topic/orders", order);
@@ -48,4 +48,27 @@ public class OrderController {
         List<Order> orders = orderRepository.findAll();
         return ResponseEntity.ok(orders);
     }
+
+    @GetMapping("/session/{sessionToken}")
+    public ResponseEntity<List<Order>> findBySession(@PathVariable String sessionToken) {
+
+        List<Order> orders = orderRepository.findBySessionToken(sessionToken);
+
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/session/{sessionToken}/summary")
+public ResponseEntity<?> summary(@PathVariable String sessionToken) {
+
+    List<Order> orders = orderRepository.findBySessionToken(sessionToken);
+
+    double total = orders.stream()
+            .mapToDouble(Order::getTotalPrice)
+            .sum();
+
+    return ResponseEntity.ok(Map.of(
+            "orders", orders,
+            "total", total
+    ));
+}
 }

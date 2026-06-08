@@ -22,6 +22,7 @@ export default function Mesas() {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedTable, setSelectedTable] = useState(null);
+    const [closingSession, setClosingSession] = useState(null);
 
     const [form, setForm] = useState({
         number: "",
@@ -70,17 +71,22 @@ export default function Mesas() {
                     }
                 }
 
-                setSessions(all);
+                setSessions(all.map(s => ({
+                    ...s,
+                    tableId: s.table?.id
+                })));
             } catch (err) {
                 console.error("Erro ao buscar sessões:", err);
             }
         };
 
         loadSessions();
-    }, [tables]);
+    }, [tables.length]);
 
     const getSessionByTable = (tableId) => {
-        return sessions.find(s => s.table?.id === tableId);
+        return sessions.find(s =>
+            s.table?.id === tableId || s.tableId === tableId
+        );
     };
 
     const filteredTables = tables.filter((t) =>
@@ -212,6 +218,31 @@ export default function Mesas() {
         }
     };
 
+    const openCloseSummary = async (table) => {
+        const session = getSessionByTable(table.id);
+
+        if (!session?.active) {
+            alert("Sem sessão ativa");
+            return;
+        }
+
+        try {
+            const { data } = await api.get(
+                `/orders/session/${session.sessionToken}/summary`
+            );
+
+            setClosingSession({
+                table,
+                session,
+                orders: data.orders,
+                total: data.total
+            });
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     return (
         <div className="space-y-8 px-4 lg:px-0">
 
@@ -326,21 +357,19 @@ export default function Mesas() {
                                                 </td>
 
                                                 <td className="py-4">
-                                                    <span className={`px-3 py-1 rounded-xl text-sm w-fit ${
-                                                        table.occupied
-                                                            ? "bg-red-500/10 text-red-400"
-                                                            : "bg-emerald-500/10 text-emerald-400"
-                                                    }`}>
+                                                    <span className={`px-3 py-1 rounded-xl text-sm w-fit ${table.occupied
+                                                        ? "bg-red-500/10 text-red-400"
+                                                        : "bg-emerald-500/10 text-emerald-400"
+                                                        }`}>
                                                         {table.occupied ? "Ocupada" : "Livre"}
                                                     </span>
                                                 </td>
 
                                                 <td className="py-4">
-                                                    <span className={`px-3 py-1 rounded-xl text-sm ${
-                                                        session?.active
-                                                            ? "bg-green-500/10 text-green-400"
-                                                            : "bg-zinc-500/10 text-zinc-400"
-                                                    }`}>
+                                                    <span className={`px-3 py-1 rounded-xl text-sm ${session?.active
+                                                        ? "bg-green-500/10 text-green-400"
+                                                        : "bg-zinc-500/10 text-zinc-400"
+                                                        }`}>
                                                         {session?.active ? "Sessão ativa" : "Sem sessão"}
                                                     </span>
                                                 </td>
@@ -369,7 +398,7 @@ export default function Mesas() {
                                                         </button>
 
                                                         <button
-                                                            onClick={() => closeSession(table.id)}
+                                                            onClick={() => openCloseSummary(table)}
                                                             className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-500/10 text-red-400"
                                                         >
                                                             <CheckCircle size={18} />
@@ -402,7 +431,7 @@ export default function Mesas() {
 
                         <div className="bg-white p-3 rounded-xl flex items-center justify-center">
                             <QRCodeCanvas
-                                value={SESSION_URL(selectedTable.token)}
+                                value={selectedTable?.token ? SESSION_URL(selectedTable.token) : ""}
                                 size={200}
                                 bgColor="#ffffff"
                                 fgColor="#000000"
@@ -423,7 +452,59 @@ export default function Mesas() {
                     </div>
                 </div>
             )}
+            {
+                closingSession && (
+                    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                        <div className="bg-zinc-900 w-full max-w-lg rounded-2xl border border-white/10 shadow-2xl p-6 text-white">
+                            <h2 className="text-xl font-bold mb-4">
+                                Resumo Mesa {closingSession.table.number}
+                            </h2>
 
+                            <div className="mb-4">
+                                <h3 className="font-semibold mb-2">Clientes</h3>
+                                <p className="text-zinc-400">
+                                    {closingSession.session?.clients?.length
+                                        ? closingSession.session.clients.map(c => c.name).join(", ")
+                                        : "Nenhum cliente"}
+                                </p>
+                            </div>
+
+                            <div className="mb-4">
+                                <h3 className="font-semibold mb-2">Pedidos</h3>
+                                <p className="text-zinc-400">
+                                    {closingSession.orders?.length
+                                        ? closingSession.orders.map(o => o.name).join(", ")
+                                        : "Sem pedidos"}
+                                </p>
+                            </div>
+
+                            <div className="mb-6">
+                                <h3 className="font-semibold">
+                                    Total: R$ {closingSession.total || 0}
+                                </h3>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setClosingSession(null)}
+                                    className="flex-1 bg-zinc-700 py-2 rounded"
+                                >
+                                    Cancelar
+                                </button>
+
+                                <button
+                                    onClick={() => closeSession(closingSession.table.id)}
+                                    className="flex-1 bg-red-500 py-2 rounded"
+                                >
+                                    Encerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
         </div>
+
     );
+
 }

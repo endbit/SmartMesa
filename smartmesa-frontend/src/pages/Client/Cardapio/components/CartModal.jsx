@@ -37,6 +37,9 @@ export default function CartModal({
             }))
         };
 
+        console.log("SESSION STORAGE TOKEN:", sessionToken);
+        console.log("ENVIANDO PEDIDO:", payload);
+
         try {
             setLoading(true);
 
