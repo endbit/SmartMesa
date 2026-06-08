@@ -1,12 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../../../api/api";
+
 import {
     ClipboardList,
-    CookingPot,
     CheckCircle2,
-    Clock,
-    Search,
     Eye,
-    ArrowRight,
     X,
     CreditCard,
     Banknote,
@@ -14,40 +12,48 @@ import {
 } from "lucide-react";
 
 export default function Pedidos() {
+
     const [search, setSearch] = useState("");
     const [selectedPedido, setSelectedPedido] = useState(null);
+    const [pedidos, setPedidos] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const pedidos = [
-        {
-            id: 1024,
-            mesa: 4,
-            cliente: "João",
-            status: "recebido",
-            total: 27.0,
-            itens: [
-                { nome: "Coxinha", qtd: 2 },
-                { nome: "Pastel", qtd: 1 },
-            ],
-            pagamento: "PIX",
-        },
-        {
-            id: 1025,
-            mesa: 2,
-            cliente: "Maria",
-            status: "preparo",
-            total: 18.5,
-            itens: [{ nome: "Café", qtd: 2 }],
-            pagamento: "Cartão",
-        },
-    ];
+    // 🚀 CARREGA PEDIDOS DO BACKEND
+    useEffect(() => {
+        loadPedidos();
+
+        const interval = setInterval(() => {
+            loadPedidos(); // polling simples (tempo real fake)
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    async function loadPedidos() {
+        try {
+            const res = await api.get("/orders");
+            setPedidos(res.data);
+        } catch (err) {
+            console.error("Erro ao buscar pedidos:", err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // 🔍 FILTRO DE BUSCA
+    const filteredPedidos = pedidos.filter(p =>
+        !search ||
+        String(p.id).includes(search) ||
+        p.customerName?.toLowerCase().includes(search.toLowerCase())
+    );
 
     function getStatusStyle(status) {
         switch (status) {
-            case "preparo":
+            case "PREPARING":
                 return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
-            case "pronto":
+            case "READY":
                 return "bg-green-500/10 text-green-400 border-green-500/20";
-            case "recebido":
+            case "OPEN":
                 return "bg-cyan-500/10 text-cyan-400 border-cyan-500/20";
             default:
                 return "bg-white/10 text-white border-white/10";
@@ -56,11 +62,11 @@ export default function Pedidos() {
 
     function getStatusLabel(status) {
         switch (status) {
-            case "preparo":
+            case "PREPARING":
                 return "Em preparo";
-            case "pronto":
+            case "READY":
                 return "Pronto";
-            case "recebido":
+            case "OPEN":
                 return "Recebido";
             default:
                 return status;
@@ -85,6 +91,7 @@ export default function Pedidos() {
 
             {/* HEADER */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+
                 <div>
                     <h1 className="text-3xl font-bold text-white">
                         Pedidos
@@ -105,40 +112,40 @@ export default function Pedidos() {
             {/* LISTA */}
             <div className="space-y-4">
 
-                {pedidos.map((pedido) => (
+                {loading && (
+                    <p className="text-zinc-400">Carregando pedidos...</p>
+                )}
+
+                {!loading && filteredPedidos.map((pedido) => (
                     <div
                         key={pedido.id}
-                        className="bg-white/3 border border-white/10 rounded-3xl p-5 flex items-center justify-between"
+                        className="bg-white/5 border border-white/10 rounded-3xl p-5 flex items-center justify-between"
                     >
 
                         {/* INFO */}
                         <div>
                             <div className="flex items-center gap-2 text-white font-semibold">
                                 <ClipboardList size={18} />
-                                Pedido #{pedido.id}
+                                Pedido #{pedido.orderNumber || pedido.id}
                             </div>
 
                             <p className="text-zinc-400 text-sm">
-                                Mesa {pedido.mesa} • {pedido.cliente}
+                                Mesa {pedido.tableNumber} • {pedido.customerName}
                             </p>
 
                             <p className="text-zinc-500 text-xs">
-                                R$ {pedido.total.toFixed(2)}
+                                R$ {Number(pedido.totalPrice || 0).toFixed(2)}
                             </p>
                         </div>
 
                         {/* AÇÕES */}
                         <div className="flex items-center gap-3">
 
-                            <span
-                                className={`px-3 py-1 rounded-xl text-sm border ${getStatusStyle(
-                                    pedido.status
-                                )}`}
-                            >
+                            <span className={`px-3 py-1 rounded-xl text-sm border ${getStatusStyle(pedido.status)}`}>
                                 {getStatusLabel(pedido.status)}
                             </span>
 
-                            {/* 👀 VER DETALHES */}
+                            {/* 👀 DETALHES */}
                             <button
                                 onClick={() => setSelectedPedido(pedido)}
                                 className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white"
@@ -146,8 +153,8 @@ export default function Pedidos() {
                                 <Eye size={18} />
                             </button>
 
-                            {/* ✅ ACEITAR PEDIDO */}
-                            {pedido.status === "recebido" && (
+                            {/* ACEITAR */}
+                            {pedido.status === "OPEN" && (
                                 <button className="w-10 h-10 rounded-xl bg-green-500/10 hover:bg-green-500/20 flex items-center justify-center text-green-400">
                                     <CheckCircle2 size={18} />
                                 </button>
@@ -157,13 +164,12 @@ export default function Pedidos() {
                 ))}
             </div>
 
-            {/* 🧾 MODAL */}
+            {/* MODAL */}
             {selectedPedido && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
 
                     <div className="w-full max-w-md bg-stone-900 border border-stone-800 rounded-3xl p-6 relative">
 
-                        {/* fechar */}
                         <button
                             onClick={() => setSelectedPedido(null)}
                             className="absolute top-4 right-4 text-stone-400 hover:text-white"
@@ -172,41 +178,38 @@ export default function Pedidos() {
                         </button>
 
                         <h2 className="text-white font-bold text-lg mb-4">
-                            Pedido #{selectedPedido.id}
+                            Pedido #{selectedPedido.orderNumber || selectedPedido.id}
                         </h2>
 
                         <p className="text-stone-400 text-sm mb-2">
-                            Cliente: {selectedPedido.cliente}
+                            Cliente: {selectedPedido.customerName}
                         </p>
 
-                        {/* pagamento */}
-                        <div className="flex items-center gap-2 mb-4">
-                            {getPaymentIcon(selectedPedido.pagamento)}
-                            <span className="text-white">
-                                {selectedPedido.pagamento}
-                            </span>
-                        </div>
+                        {/* STATUS */}
+                        <p className="text-white mb-4">
+                            Status: {getStatusLabel(selectedPedido.status)}
+                        </p>
 
-                        {/* itens */}
+                        {/* ITENS */}
                         <div className="space-y-2 border-t border-stone-800 pt-4">
-                            {selectedPedido.itens.map((item, i) => (
+
+                            {selectedPedido.items?.map((item, i) => (
                                 <div
                                     key={i}
                                     className="flex justify-between text-stone-300 text-sm"
                                 >
-                                    <span>{item.nome}</span>
-                                    <span>x{item.qtd}</span>
+                                    <span>{item.productName}</span>
+                                    <span>x{item.quantity}</span>
                                 </div>
                             ))}
                         </div>
 
-                        {/* total */}
+                        {/* TOTAL */}
                         <div className="border-t border-stone-800 mt-4 pt-4 flex justify-between text-white font-bold">
                             <span>Total</span>
-                            <span>R$ {selectedPedido.total.toFixed(2)}</span>
+                            <span>R$ {Number(selectedPedido.totalPrice || 0).toFixed(2)}</span>
                         </div>
 
-                        {/* ação */}
                         <button className="w-full mt-5 h-12 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-black font-bold">
                             Aceitar pedido
                         </button>
