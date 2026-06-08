@@ -1,4 +1,5 @@
-import { UtensilsCrossed, Search, QrCode, Printer, CheckCircle } from "lucide-react";
+import { Search, QrCode, Printer, CheckCircle } from "lucide-react";
+import CreateTableForm from "./components/CreateTableForm";
 
 export default function Mesas() {
 
@@ -16,24 +17,7 @@ export default function Mesas() {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
                 {/* FORM */}
-                <div className="bg-white/3 border border-white/10 rounded-3xl p-6">
-                    <div className="flex items-center gap-3 mb-6">
-                        <UtensilsCrossed className="text-orange-400" />
-                        <h2 className="text-xl font-bold text-white">Nova Mesa</h2>
-                    </div>
-
-                    <div className="space-y-4">
-                        <input
-                            type="number"
-                            placeholder="Número da mesa"
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white outline-none"
-                        />
-
-                        <button className="w-full bg-orange-500 hover:bg-orange-400 py-3 transition rounded-2xl text-white font-semibold">
-                            Salvar Mesa
-                        </button>
-                    </div>
-                </div>
+                <CreateTableForm />
 
                 {/* LISTA */}
                 <div className="xl:col-span-2 bg-white/3 border border-white/10 rounded-3xl p-6">
@@ -73,7 +57,7 @@ export default function Mesas() {
                                     </td>
 
                                     <td className="py-4">
-                                        <span className="px-3 py-1 rounded-xl text-sm bg-green-500/10 text-green-400">Sessão ativa</span>
+                                        <span className="px-3 py-1 rounded-xl text-sm bg-gray-500/10 text-gray-400">Sessão Inativa</span>
                                     </td>
 
                                     <td className="py-4">
