@@ -9,5 +9,6 @@ public class OrderRequestDTO {
 
     private String sessionToken;
     private Double totalPrice;
+    private String customerName;
     private List<OrderItemDTO> items;
 }

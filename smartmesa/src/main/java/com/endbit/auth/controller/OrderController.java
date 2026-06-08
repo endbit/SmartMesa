@@ -31,6 +31,7 @@ public class OrderController {
 
         Order order = orderService.createOrder(
                 payload.getSessionToken(),
+                payload.getCustomerName(),
                 payload.getItems(),
                 payload.getTotalPrice()
         );

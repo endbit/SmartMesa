@@ -24,9 +24,11 @@ export default function CartModal({
     async function sendOrder() {
 
         const sessionToken = sessionStorage.getItem("sessionToken");
+        const customerName = sessionStorage.getItem("customerName")
 
         const payload = {
             sessionToken,
+            customerName,
             totalPrice,
             items: items.map(item => ({
                 productName: item.productName,

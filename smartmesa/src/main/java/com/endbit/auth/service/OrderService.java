@@ -21,18 +21,17 @@ public class OrderService {
     @Autowired
     private TableSessionService sessionService;
 
-    public Order createOrder(
-            String sessionToken,
-            List<OrderItemDTO> items,
-            Double totalPrice
-    ) {
+    public Order createOrder(String sessionToken, String customerName, List<OrderItemDTO> items, Double totalPrice) {
 
         TableSession session = sessionService.findByToken(sessionToken);
 
         Order order = new Order();
         order.setSession(session);
         order.setTableNumber(session.getTable().getNumber());
-        order.setCustomerName("Cliente");
+
+        // ✅ agora vem do front
+        order.setCustomerName(customerName);
+
         order.setTotalPrice(totalPrice);
 
         List<OrderItem> orderItems = new ArrayList<>();
