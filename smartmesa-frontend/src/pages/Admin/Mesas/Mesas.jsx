@@ -19,6 +19,7 @@ import api from "../../../api/api";
 export default function Mesas() {
     const [search, setSearch] = useState("");
     const [tables, setTables] = useState([]);
+    const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedTable, setSelectedTable] = useState(null);
 
@@ -29,6 +30,9 @@ export default function Mesas() {
 
     const [saving, setSaving] = useState(false);
 
+    // ========================
+    // TABLES
+    // ========================
     useEffect(() => {
         async function loadTables() {
             try {
@@ -43,6 +47,41 @@ export default function Mesas() {
 
         loadTables();
     }, []);
+
+    // ========================
+    // SESSÕES (NOVO - SEM 500)
+    // ========================
+    useEffect(() => {
+        if (!tables.length) return;
+
+        const loadSessions = async () => {
+            try {
+                const all = [];
+
+                for (const table of tables) {
+                    if (!table?.token) continue;
+
+                    try {
+                        const res = await api.get(`/sessions/table/${table.token}`);
+                        if (res.data) all.push(res.data);
+                    } catch (err) {
+                        // evita quebrar tudo se mesa não tiver sessão ainda
+                        console.warn("Sem sessão para mesa:", table.number);
+                    }
+                }
+
+                setSessions(all);
+            } catch (err) {
+                console.error("Erro ao buscar sessões:", err);
+            }
+        };
+
+        loadSessions();
+    }, [tables]);
+
+    const getSessionByTable = (tableId) => {
+        return sessions.find(s => s.table?.id === tableId);
+    };
 
     const filteredTables = tables.filter((t) =>
         String(t.number).includes(search)
@@ -80,7 +119,9 @@ export default function Mesas() {
         }
     };
 
-    // ✅ SESSÃO PADRONIZADA (IMPORTANTE)
+    // ========================
+    // QR CODE (INTACTO)
+    // ========================
     const SESSION_URL = (token) =>
         `${window.location.origin}/menu/${token}`;
 
@@ -149,6 +190,25 @@ export default function Mesas() {
             doc.save(`smartmesa-mesa-${table.number}.pdf`);
         } catch (err) {
             console.error("Erro ao gerar PDF:", err);
+        }
+    };
+
+    // ========================
+    // ENCERRAR SESSÃO
+    // ========================
+    const closeSession = async (tableId) => {
+        try {
+            await api.patch(`/sessions/table/${tableId}/close`);
+
+            setSessions(prev =>
+                prev.map(s =>
+                    s.table?.id === tableId
+                        ? { ...s, active: false }
+                        : s
+                )
+            );
+        } catch (err) {
+            console.error("Erro ao encerrar sessão:", err);
         }
     };
 
@@ -247,60 +307,80 @@ export default function Mesas() {
                                     <tr className="border-b border-white/10">
                                         <th className="text-left text-zinc-400 py-2">Mesa</th>
                                         <th className="text-left text-zinc-400 py-2">Status</th>
+                                        <th className="text-left text-zinc-400 py-2">Sessão</th>
                                         <th className="text-left text-zinc-400 py-2">QR</th>
                                         <th className="text-right text-zinc-400 py-2">Ações</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
-                                    {filteredTables.map((table) => (
-                                        <tr key={table.id} className="border-b border-white/5">
+                                    {filteredTables.map((table) => {
 
-                                            <td className="text-white py-4">
-                                                Mesa {table.number}
-                                            </td>
+                                        const session = getSessionByTable(table.id);
 
-                                            <td className="py-4">
-                                                <span className={`px-3 py-1 rounded-xl text-sm w-fit ${table.occupied
-                                                    ? "bg-red-500/10 text-red-400"
-                                                    : "bg-emerald-500/10 text-emerald-400"
+                                        return (
+                                            <tr key={table.id} className="border-b border-white/5">
+
+                                                <td className="text-white py-4">
+                                                    Mesa {table.number}
+                                                </td>
+
+                                                <td className="py-4">
+                                                    <span className={`px-3 py-1 rounded-xl text-sm w-fit ${
+                                                        table.occupied
+                                                            ? "bg-red-500/10 text-red-400"
+                                                            : "bg-emerald-500/10 text-emerald-400"
                                                     }`}>
-                                                    {table.occupied ? "Ocupada" : "Livre"}
-                                                </span>
-                                            </td>
+                                                        {table.occupied ? "Ocupada" : "Livre"}
+                                                    </span>
+                                                </td>
 
-                                            <td className="py-4">
-                                                <span className="px-3 py-1 rounded-xl bg-orange-500/10 text-orange-400 text-sm">
-                                                    {table.token ? "Gerado" : "Pendente"}
-                                                </span>
-                                            </td>
+                                                <td className="py-4">
+                                                    <span className={`px-3 py-1 rounded-xl text-sm ${
+                                                        session?.active
+                                                            ? "bg-green-500/10 text-green-400"
+                                                            : "bg-zinc-500/10 text-zinc-400"
+                                                    }`}>
+                                                        {session?.active ? "Sessão ativa" : "Sem sessão"}
+                                                    </span>
+                                                </td>
 
-                                            <td className="py-4">
-                                                <div className="flex items-center justify-center lg:justify-end gap-2 flex-wrap">
+                                                <td className="py-4">
+                                                    <span className="px-3 py-1 rounded-xl bg-orange-500/10 text-orange-400 text-sm">
+                                                        {table.token ? "Gerado" : "Pendente"}
+                                                    </span>
+                                                </td>
 
-                                                    <button
-                                                        onClick={() => setSelectedTable(table)}
-                                                        className="w-11 h-11 flex items-center justify-center rounded-xl bg-green-500/10 text-green-400"
-                                                    >
-                                                        <QrCode size={18} />
-                                                    </button>
+                                                <td className="py-4">
+                                                    <div className="flex items-center justify-center lg:justify-end gap-2 flex-wrap">
 
-                                                    <button
-                                                        onClick={() => printQRCode(table)}
-                                                        className="w-11 h-11 flex items-center justify-center rounded-xl bg-orange-500/10 text-orange-400"
-                                                    >
-                                                        <Printer size={18} />
-                                                    </button>
+                                                        <button
+                                                            onClick={() => setSelectedTable(table)}
+                                                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-green-500/10 text-green-400"
+                                                        >
+                                                            <QrCode size={18} />
+                                                        </button>
 
-                                                    <button className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-500/10 text-red-400">
-                                                        <Trash2 size={18} />
-                                                    </button>
+                                                        <button
+                                                            onClick={() => printQRCode(table)}
+                                                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-orange-500/10 text-orange-400"
+                                                        >
+                                                            <Printer size={18} />
+                                                        </button>
 
-                                                </div>
-                                            </td>
+                                                        <button
+                                                            onClick={() => closeSession(table.id)}
+                                                            className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-500/10 text-red-400"
+                                                        >
+                                                            <CheckCircle size={18} />
+                                                        </button>
 
-                                        </tr>
-                                    ))}
+                                                    </div>
+                                                </td>
+
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
 
                             </table>
@@ -310,7 +390,7 @@ export default function Mesas() {
                 </div>
             </div>
 
-            {/* MODAL */}
+            {/* MODAL (QR INTACTO) */}
             {selectedTable && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
 
