@@ -21,7 +21,10 @@ export default function Pedidos() {
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // 🔊 áudio persistente (não recria a cada pedido)
+    // 🔔 NOTIFICAÇÃO VISUAL
+    const [toast, setToast] = useState(null);
+
+    // 🔊 áudio persistente
     const audioRef = useRef(null);
     const audioUnlocked = useRef(false);
 
@@ -44,7 +47,7 @@ export default function Pedidos() {
     }
 
     // =========================
-    // 🔓 DESBLOQUEAR ÁUDIO (Chrome safe)
+    // 🔓 UNLOCK ÁUDIO
     // =========================
     useEffect(() => {
         const unlock = () => {
@@ -60,22 +63,17 @@ export default function Pedidos() {
         };
 
         window.addEventListener("click", unlock);
-
         return () => window.removeEventListener("click", unlock);
     }, []);
 
     function playNewOrderSound() {
+        if (!audioUnlocked.current || !audioRef.current) return;
+
         try {
-            if (!audioUnlocked.current) return;
-            if (!audioRef.current) return;
-
             audioRef.current.currentTime = 0;
-            audioRef.current.play().catch(() => {
-                // evita crash silencioso do browser
-            });
-
-        } catch (err) {
-            console.log("Som bloqueado:", err);
+            audioRef.current.play().catch(() => { });
+        } catch (e) {
+            console.log("Som bloqueado");
         }
     }
 
@@ -109,13 +107,22 @@ export default function Pedidos() {
                     return [novoPedido, ...prev];
                 });
 
-                // 🔔 som seguro
+                // 🔊 som
                 playNewOrderSound();
+
+                // 🔔 TOAST
+                setToast({
+                    id: novoPedido.id,
+                    mesa: novoPedido.tableNumber,
+                });
+
+                setTimeout(() => {
+                    setToast(null);
+                }, 3500);
             });
         };
 
         stompClient.activate();
-
         return () => stompClient.deactivate();
 
     }, []);
@@ -175,7 +182,39 @@ export default function Pedidos() {
     // 🧾 UI
     // =========================
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 relative">
+
+            {/* 🔔 TOAST NOVO PEDIDO (BOTTOM RIGHT) */}
+            {toast && (
+                <div className="fixed bottom-6 right-6 z-50 w-72">
+
+                    <div className="
+            bg-white/10 
+            backdrop-blur-xl 
+            border border-white/10
+            text-white
+            px-5 py-4 
+            rounded-2xl 
+            shadow-2xl
+
+            transform transition-all duration-300 ease-out
+            animate-in fade-in zoom-in-95
+        ">
+
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                            <p className="font-semibold text-sm">
+                                Novo pedido #{toast.id}
+                            </p>
+                        </div>
+
+                        <p className="text-sm text-white/70">
+                            Mesa {toast.mesa}
+                        </p>
+
+                    </div>
+                </div>
+            )}
 
             {/* HEADER */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -290,7 +329,7 @@ export default function Pedidos() {
                             <span>R$ {Number(selectedPedido.totalPrice || 0).toFixed(2)}</span>
                         </div>
 
-                        <button className="w-full mt-5 h-12 rounded-2xl bg-linear-to-r from-amber-500 to-red-500 text-black font-bold">
+                        <button className="w-full mt-5 h-12 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-black font-bold">
                             Aceitar pedido
                         </button>
 
