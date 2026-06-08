@@ -112,7 +112,7 @@ export default function Pedidos() {
 
                 // 🔔 TOAST
                 setToast({
-                    id: novoPedido.id,
+                    id: novoPedido.orderNumber,
                     mesa: novoPedido.tableNumber,
                 });
 
@@ -329,7 +329,7 @@ export default function Pedidos() {
                             <span>R$ {Number(selectedPedido.totalPrice || 0).toFixed(2)}</span>
                         </div>
 
-                        <button className="w-full mt-5 h-12 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-black font-bold">
+                        <button className="w-full mt-5 h-12 rounded-2xl bg-linear-to-r from-amber-500 to-red-500 text-black font-bold">
                             Aceitar pedido
                         </button>
 
