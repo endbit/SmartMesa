@@ -1,6 +1,7 @@
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
-
 import { useCart } from "../../../../context/CartContext";
+import api from "../../../../api/api";
+import { useState } from "react";
 
 export default function CartModal({
     open,
@@ -11,10 +12,43 @@ export default function CartModal({
         items,
         totalPrice,
         addItem,
-        removeItem
+        removeItem,
+        clearCart
     } = useCart();
 
+    const [loading, setLoading] = useState(false);
+
     if (!open) return null;
+
+    // 🚀 ENVIAR PEDIDO
+    async function sendOrder() {
+
+        const sessionToken = sessionStorage.getItem("sessionToken");
+
+        const payload = {
+            sessionToken,
+            totalPrice,
+            items: items.map(item => ({
+                productName: item.productName,
+                quantity: item.quantity,
+                price: item.price
+            }))
+        };
+
+        try {
+            setLoading(true);
+
+            await api.post("/orders", payload);
+
+            clearCart();
+            onClose();
+
+        } catch (err) {
+            console.error("Erro ao enviar pedido:", err);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <>
@@ -95,11 +129,11 @@ export default function CartModal({
                                 <div>
 
                                     <h3 className="text-white font-semibold">
-                                        {item.nome}
+                                        {item.productName}
                                     </h3>
 
                                     <p className="text-amber-400 font-bold mt-1">
-                                        R$ {item.preco.toFixed(2)}
+                                        R$ {item.price.toFixed(2)}
                                     </p>
 
                                 </div>
@@ -107,15 +141,10 @@ export default function CartModal({
                                 <div className="flex items-center gap-3">
 
                                     <button
-                                        onClick={() =>
-                                            removeItem(item.id)
-                                        }
+                                        onClick={() => removeItem(item.id)}
                                         className="w-9 h-9 rounded-xl bg-stone-800 flex items-center justify-center"
                                     >
-                                        <Minus
-                                            size={16}
-                                            className="text-white"
-                                        />
+                                        <Minus size={16} className="text-white" />
                                     </button>
 
                                     <span className="text-white font-semibold min-w-5 text-center">
@@ -123,15 +152,10 @@ export default function CartModal({
                                     </span>
 
                                     <button
-                                        onClick={() =>
-                                            addItem(item)
-                                        }
+                                        onClick={() => addItem(item)}
                                         className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center"
                                     >
-                                        <Plus
-                                            size={16}
-                                            className="text-black"
-                                        />
+                                        <Plus size={16} className="text-black" />
                                     </button>
 
                                 </div>
@@ -158,10 +182,11 @@ export default function CartModal({
                     </div>
 
                     <button
-                        disabled={!items.length}
+                        onClick={sendOrder}
+                        disabled={!items.length || loading}
                         className="w-full h-14 rounded-2xl bg-linear-to-r from-amber-500 to-red-500 text-black font-bold disabled:opacity-40"
                     >
-                        Finalizar Pedido 🍽️
+                        {loading ? "Enviando..." : "Finalizar Pedido 🍽️"}
                     </button>
 
                 </div>
