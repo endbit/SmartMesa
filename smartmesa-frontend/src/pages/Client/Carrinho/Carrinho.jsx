@@ -31,7 +31,7 @@ export default function Carrinho() {
     const total = subtotal + taxa;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-stone-900 to-neutral-950 pb-44">
+        <div className="min-h-screen bg-linear-to-br from-zinc-950 via-stone-900 to-neutral-950 pb-44">
 
             {/* HEADER */}
             <div className="sticky top-0 z-40 backdrop-blur-xl bg-stone-950/70 border-b border-stone-800 px-4 py-4">
@@ -132,7 +132,7 @@ export default function Carrinho() {
 
                 </div>
 
-                <button className="w-full h-14 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-black font-bold flex items-center justify-between px-5 shadow-xl active:scale-[0.98] transition">
+                <button className="w-full h-14 rounded-2xl bg-linear-to-r from-amber-500 to-red-500 text-black font-bold flex items-center justify-between px-5 shadow-xl active:scale-[0.98] transition">
 
                     <span>Finalizar pedido</span>
 
