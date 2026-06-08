@@ -4,6 +4,7 @@ import Categories from "./components/Categories";
 import ProductList from "./components/ProductList";
 import CartButton from "./components/CartButton";
 import CartModal from "./components/CartModal";
+import ProductModal from "./components/ProductModal";
 
 import { useMenu } from "./hooks";
 import { useCart } from "../../../context/CartContext";
@@ -14,7 +15,7 @@ import api from "../../../api/api";
 
 export default function Cardapio() {
 
-    // 🧠 sessão do cliente (FONTE ÚNICA)
+    // 🧠 sessão do cliente
     const name = sessionStorage.getItem("customerName") || "Cliente";
     const tableNumber = sessionStorage.getItem("tableNumber") || "—";
     const sessionToken = sessionStorage.getItem("sessionToken");
@@ -25,7 +26,7 @@ export default function Cardapio() {
     const [cartOpen, setCartOpen] = useState(false);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     // 🚀 produtos
     useEffect(() => {
@@ -33,7 +34,6 @@ export default function Cardapio() {
             try {
                 const data = await getProducts();
                 setProducts(data);
-                setFilteredProducts(data);
             } catch (err) {
                 console.error("Erro produtos:", err);
             }
@@ -56,31 +56,6 @@ export default function Cardapio() {
         loadCategories();
     }, []);
 
-    // 🔥 filtro
-    useEffect(() => {
-
-        let filtered = [...products];
-
-        if (selectedCategory) {
-            filtered = filtered.filter(
-                p => p.category?.id === selectedCategory
-            );
-        }
-
-        if (search) {
-            filtered = filtered.filter(p =>
-                p.nome.toLowerCase().includes(search.toLowerCase())
-            );
-        }
-
-        const t = setTimeout(() => {
-            setFilteredProducts(filtered);
-        }, 120);
-
-        return () => clearTimeout(t);
-
-    }, [selectedCategory, search, products]);
-
     return (
         <div className="min-h-screen bg-linear-to-br from-zinc-950 via-stone-900 to-neutral-950 pb-32">
 
@@ -102,8 +77,12 @@ export default function Cardapio() {
             />
 
             <ProductList
-                products={filteredProducts}
+                products={products}
+                categories={categories}
+                search={search}
+                selectedCategory={selectedCategory}   // 🔥 FALTAVA ISSO
                 onAdd={addItem}
+                onSelectProduct={setSelectedProduct}
             />
 
             <CartButton
@@ -115,6 +94,14 @@ export default function Cardapio() {
             <CartModal
                 open={cartOpen}
                 onClose={() => setCartOpen(false)}
+            />
+
+            {/* 🚀 MODAL DO PRODUTO */}
+            <ProductModal
+                product={selectedProduct}
+                open={!!selectedProduct}
+                onClose={() => setSelectedProduct(null)}
+                onAdd={addItem}
             />
 
         </div>
