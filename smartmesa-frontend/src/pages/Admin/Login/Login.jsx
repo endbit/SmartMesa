@@ -46,7 +46,7 @@ function Login() {
         <div className="min-h-screen flex items-center justify-center bg-zinc-950">
             <form
                 onSubmit={handleLogin}
-                className="bg-stone-900/70 border border-stone-800 p-8 rounded-3xl w-[350px] space-y-5"
+                className="bg-stone-900/70 border border-stone-800 p-8 rounded-3xl w-87.5 space-y-5"
             >
                 <div className="flex justify-center">
                     {/* <img src={logo} width={120} /> */}
@@ -74,7 +74,7 @@ function Login() {
 
                 <button
                     type="submit"
-                    className="w-full h-12 rounded-2xl bg-gradient-to-r from-amber-500 to-red-500 text-black font-bold"
+                    className="w-full h-12 rounded-2xl bg-linear-to-r from-amber-500 to-red-500 text-black font-bold"
                 >
                     Entrar
                 </button>
